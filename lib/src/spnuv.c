@@ -3,11 +3,13 @@
 static unsigned init_refcount = 0;
 static SpnHashMap *library = NULL;
 
-int not_implemented(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int not_implemented(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     return 1;
 }
 
-SPN_LIB_OPEN_FUNC(ctx) {
+SPN_LIB_OPEN_FUNC(ctx)
+{
     /* TODO: refactor */
     SpnValue library_value;
     SpnValue loop_value;
@@ -41,7 +43,8 @@ SPN_LIB_OPEN_FUNC(ctx) {
     return library_value;
 }
 
-SPN_LIB_CLOSE_FUNC(ctx) {
+SPN_LIB_CLOSE_FUNC(ctx)
+{
     init_refcount -= 1;
     if (init_refcount == 0) {
         spnuv_loop_api_destroy();

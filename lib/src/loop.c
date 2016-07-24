@@ -2,7 +2,8 @@
 
 static SpnHashMap *default_loop = NULL;
 
-int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val;
     uv_loop_t *uv_loop;
@@ -16,7 +17,8 @@ int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return uv_run(uv_loop, UV_RUN_DEFAULT);
 }
 
-int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val;
     uv_loop_t *uv_loop;
@@ -32,7 +34,8 @@ int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return  0;
 }
 
-int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val; 
     uv_loop_t *uv_loop;
@@ -47,7 +50,8 @@ int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val;
     uv_loop_t *uv_loop;
@@ -63,7 +67,8 @@ int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val;
     uv_loop_t *uv_loop;
@@ -79,7 +84,8 @@ int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val;
     uv_loop_t *uv_loop;
@@ -95,7 +101,8 @@ int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *self;
     SpnValue val;
     uv_loop_t *uv_loop;
@@ -111,7 +118,8 @@ int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-SpnHashMap *new_loop(int is_default) {
+SpnHashMap *new_loop(int is_default)
+{
     SpnHashMap *members = spn_hashmap_new();
     size_t i;
     SpnValue value;
@@ -149,7 +157,8 @@ SpnHashMap *new_loop(int is_default) {
     return members;
 }
 
-int loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnValue res;
 
     res.type = SPN_TYPE_HASHMAP;
@@ -168,7 +177,8 @@ int loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-SpnHashMap *spnuv_loop_api(void) {
+SpnHashMap *spnuv_loop_api(void)
+{
     SpnHashMap *api = spn_hashmap_new();
     size_t i;
 
@@ -186,6 +196,7 @@ SpnHashMap *spnuv_loop_api(void) {
     return api;
 }
 
-void spnuv_loop_api_destroy(void) {
+void spnuv_loop_api_destroy(void)
+{
     spn_object_release(default_loop);
 }

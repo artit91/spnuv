@@ -1,6 +1,7 @@
 #include "spnuv.h"
 
-int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     /* TODO: address, port, flags, free tcp_h */
     SpnHashMap *self;
     SpnValue value;
@@ -28,7 +29,8 @@ int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return uv_tcp_bind(tcp_h, (struct sockaddr *)&addr, 0);
 }
 
-void tcp_listen_cb(uv_stream_t *handle, int status) {
+void tcp_listen_cb(uv_stream_t *handle, int status)
+{
     uv_tcp_t *tcp_h = (uv_tcp_t *)handle;
     SpnHashMap *self = tcp_h->data;
     SpnValue context_value = spn_hashmap_get_strkey(self, "listenContext");
@@ -49,7 +51,8 @@ void tcp_listen_cb(uv_stream_t *handle, int status) {
     spn_ctx_callfunc(ctx, func, NULL, 1, argv);
 }
 
-int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     /* TODO: backlog */
     SpnHashMap *self;
     SpnValue val;
@@ -71,7 +74,8 @@ int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return uv_listen((uv_stream_t *)tcp_h, 511, tcp_listen_cb);
 }
 
-int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     /* TODO: free client_tcp_h */
     SpnHashMap *self;
     uv_tcp_t *tcp_h;
@@ -104,13 +108,15 @@ int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return uv_accept((uv_stream_t *)tcp_h, (uv_stream_t *)client_tcp_h);
 }
 
-void tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t *buf) {
+void tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t *buf)
+{
     /* TODO: better approach */
     uv_buf_t suggested_buffer = uv_buf_init(malloc(suggested_size), suggested_size);
     *buf = suggested_buffer;
 }
 
-void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf) {
+void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
+{
     uv_tcp_t *tcp_h = (uv_tcp_t *)handle;
     SpnHashMap *self = tcp_h->data;
     SpnValue context_value = spn_hashmap_get_strkey(self, "readContext");
@@ -157,7 +163,8 @@ void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf) {
     spn_ctx_callfunc(ctx, func, NULL, 2, argv);
 }
 
-int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     /* TODO: test context/callbacks */
     SpnHashMap *self;
     SpnValue value;
@@ -178,11 +185,13 @@ int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return uv_read_start((uv_stream_t *)tcp_h, (uv_alloc_cb)tcp_read_alloc_cb, (uv_read_cb)tcp_read_cb);
 }
 
-void tcp_write_cb(uv_write_t* req, int status) {
+void tcp_write_cb(uv_write_t* req, int status)
+{
     /* TODO: write */
 }
 
-int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     /* TODO: rewrite */
     SpnHashMap *self;
     SpnValue value;
@@ -208,7 +217,8 @@ int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return uv_write(&req, (uv_stream_t *)tcp_h, &buf, 1, tcp_write_cb);
 }
 
-int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
+int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+{
     SpnHashMap *members = spn_hashmap_new();
 
     SpnHashMap *loop;
@@ -250,7 +260,8 @@ int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     return 0;
 }
 
-SpnHashMap *spnuv_tcp_api(void) {
+SpnHashMap *spnuv_tcp_api(void)
+{
     SpnHashMap *api = spn_hashmap_new();
     size_t i;
 
@@ -267,4 +278,7 @@ SpnHashMap *spnuv_tcp_api(void) {
     return api;
 }
 
-void spnuv_tcp_api_destroy(void) {}
+void spnuv_tcp_api_destroy(void)
+{
+    /* empty function */
+}
