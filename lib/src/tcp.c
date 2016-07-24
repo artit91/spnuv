@@ -2,7 +2,6 @@
 
 int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
     /* TODO: address, port, flags, free tcp_h */
-
     SpnHashMap *self;
     SpnValue value;
     uv_loop_t *uv_loop;
