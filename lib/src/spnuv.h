@@ -1,7 +1,11 @@
 #ifndef __spnuv__
 #define __spnuv__
 
+/* TODO: error objects, check params */
+
 #define USE_DYNAMIC_LOADING 1
+#define GETUINFO(type, val) (type*)(spn_objvalue(&val))
+#define COUNT(x)  (sizeof(x) / sizeof((x)[0]))
 
 #include "uv.h"
 
@@ -16,7 +20,5 @@ void spnuv_loop_api_destroy(void);
 
 SpnHashMap *spnuv_tcp_api(void);
 void spnuv_tcp_api_destroy(void);
-
-#define getuinfo(type,val) (type*)(spn_objvalue(&val))
 
 #endif

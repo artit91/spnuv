@@ -8,25 +8,37 @@ int not_implemented(SpnValue *ret, int argc, SpnValue argv[], void *ctx) {
 }
 
 SPN_LIB_OPEN_FUNC(ctx) {
+    /* TODO: refactor */
+    SpnValue library_value;
+    SpnValue loop_value;
+    SpnValue tcp_value;
+    SpnHashMap *loop_api;
+    SpnHashMap *tcp_api;
 
     if (init_refcount == 0) {
         library = spn_hashmap_new();
 
-        SpnHashMap *loop_api = spnuv_loop_api();
-        SpnValue loop = (SpnValue){ .type = SPN_TYPE_HASHMAP, .v.o = loop_api };
-        spn_hashmap_set_strkey(library, "Loop", &loop);
-        spn_value_release(&loop);
+        loop_api = spnuv_loop_api();
+        loop_value.type = SPN_TYPE_HASHMAP;
+        loop_value.v.o = loop_api;
+        spn_hashmap_set_strkey(library, "Loop", &loop_value);
+        spn_value_release(&loop_value);
 
-        SpnHashMap *tcp_api = spnuv_tcp_api();
-        SpnValue tcp = (SpnValue){ .type = SPN_TYPE_HASHMAP, .v.o = tcp_api };
-        spn_hashmap_set_strkey(library, "TCP", &tcp);
-        spn_value_release(&tcp);
+        tcp_api = spnuv_tcp_api();
+        tcp_value.type = SPN_TYPE_HASHMAP;
+        tcp_value.v.o = tcp_api;
+        spn_hashmap_set_strkey(library, "TCP", &tcp_value);
+        spn_value_release(&tcp_value);
     }
 
     init_refcount += 1;
+
+    library_value.type = SPN_TYPE_HASHMAP;
+    library_value.v.o = library;
+
     spn_object_retain(library);
 
-    return (SpnValue){ .type = SPN_TYPE_HASHMAP, .v.o = library };
+    return library_value;
 }
 
 SPN_LIB_CLOSE_FUNC(ctx) {
