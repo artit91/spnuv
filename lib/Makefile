@@ -1,5 +1,3 @@
-BUILD ?= debug
-
 CC = gcc
 
 SPN_HEADERS=/Users/artit91/projects/spn/include/spn
@@ -10,7 +8,7 @@ INCLUDES=-I$(SPN_HEADERS) -I$(LIBUV_HEADERS)
 
 SRCDIR = src
 
-LINKER_ARGS = -Wl $(LIBUV_LIB) -dynamiclib -undefined suppress -flat_namespace
+LINKER_FLAGS = -Wl $(LIBUV_LIB) -dynamiclib -undefined suppress -flat_namespace
 
 EXTRA_WARNINGS = -Wno-error=unused-function -Wno-error=sign-compare -Wno-error=logical-op-parentheses -Wimplicit-fallthrough -Wno-unused-parameter -Wno-error-deprecated-declarations -Wno-error=missing-field-initializers
 
@@ -23,7 +21,7 @@ all:
 	$(CC) $(CFLAGS) $(SRCDIR)/loop.c  -o ./build/loop.o
 	$(CC) $(CFLAGS) $(SRCDIR)/spnuv.c -o ./build/spnuv.o
 	$(CC) $(CFLAGS) $(SRCDIR)/tcp.c -o ./build/tcp.o
-	$(CC) $(LINKER_ARGS) ./build/*.o -o build.dylib
+	$(CC) $(LINKER_FLAGS) ./build/*.o -o build.dylib
 
 clean:
 	rm -rf ./build
