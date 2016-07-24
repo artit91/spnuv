@@ -1,7 +1,7 @@
 #ifndef __spnuv__
 #define __spnuv__
 
-/* TODO: error objects, check params */
+/* TODO: error objects, check params, implement all loop and tcp calls */
 
 #define USE_DYNAMIC_LOADING 1
 #define GETUINFO(type, val) (type*)(spn_objvalue(&val))
