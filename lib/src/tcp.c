@@ -108,10 +108,12 @@ int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return uv_accept((uv_stream_t *)tcp_h, (uv_stream_t *)client_tcp_h);
 }
 
-void tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t *buf)
+void tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size,
+                       uv_buf_t *buf)
 {
         /* TODO: better approach */
-        uv_buf_t suggested_buffer = uv_buf_init(malloc(suggested_size), suggested_size);
+        uv_buf_t suggested_buffer = uv_buf_init(malloc(suggested_size),
+                                                suggested_size);
         *buf = suggested_buffer;
 }
 
@@ -182,7 +184,9 @@ int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spn_hashmap_set_strkey(self, "readContext", &value);
         spn_value_release(&value);
 
-        return uv_read_start((uv_stream_t *)tcp_h, (uv_alloc_cb)tcp_read_alloc_cb, (uv_read_cb)tcp_read_cb);
+        return uv_read_start((uv_stream_t *)tcp_h,
+                             (uv_alloc_cb)tcp_read_alloc_cb,
+                             (uv_read_cb)tcp_read_cb);
 }
 
 void tcp_write_cb(uv_write_t* req, int status)
