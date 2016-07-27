@@ -10,27 +10,29 @@ int not_implemented(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
 SPN_LIB_OPEN_FUNC(ctx)
 {
-        /* TODO: refactor */
         SpnValue library_value;
-        SpnValue loop_value;
-        SpnValue tcp_value;
-        SpnHashMap *loop_api;
-        SpnHashMap *tcp_api;
 
         if (init_refcount == 0) {
+                static const SpnUVApi apis[] = {
+                        { "Loop", spnuv_loop_api },
+                        { "TCP", spnuv_tcp_api },
+                };
+
+                SpnHashMap *api;
+
+                size_t i;
+
                 library = spn_hashmap_new();
 
-                loop_api = spnuv_loop_api();
-                loop_value.type = SPN_TYPE_HASHMAP;
-                loop_value.v.o = loop_api;
-                spn_hashmap_set_strkey(library, "Loop", &loop_value);
-                spn_value_release(&loop_value);
 
-                tcp_api = spnuv_tcp_api();
-                tcp_value.type = SPN_TYPE_HASHMAP;
-                tcp_value.v.o = tcp_api;
-                spn_hashmap_set_strkey(library, "TCP", &tcp_value);
-                spn_value_release(&tcp_value);
+                for (i = 0; i < COUNT(apis); i += 1) {
+                        SpnValue value;
+                        api = apis[i].fn();
+                        value.type = SPN_TYPE_HASHMAP;
+                        value.v.o = api;
+                        spn_hashmap_set_strkey(library, apis[i].name, &value);
+                        spn_value_release(&value);
+                }
         }
 
         init_refcount += 1;

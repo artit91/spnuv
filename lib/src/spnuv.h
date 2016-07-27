@@ -21,4 +21,9 @@ void spnuv_loop_api_destroy(void);
 SpnHashMap *spnuv_tcp_api(void);
 void spnuv_tcp_api_destroy(void);
 
+typedef struct SpnUVApi {
+        const char *name;
+        SpnHashMap *(*fn)(void);
+} SpnUVApi;
+
 #endif
