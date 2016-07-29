@@ -282,7 +282,7 @@ SpnHashMap *spnuv_tcp_api(void)
                 { "new", tcp_new }
         };
 
-        for (i = 0; i < 1; i += 1) {
+        for (i = 0; i < COUNT(fns); i += 1) {
                 SpnValue fnval = spn_makenativefunc(fns[i].name, fns[i].fn);
                 spn_hashmap_set_strkey(api, fns[i].name, &fnval);
                 spn_value_release(&fnval);
