@@ -4,6 +4,7 @@
 /* TODO: error objects, check params, implement all loop and tcp calls */
 
 #define USE_DYNAMIC_LOADING 1
+#define SPNUV_SLAB_SIZE 65536
 #define GETUINFO(type, val) (type*)(spn_objvalue(&val))
 #define COUNT(x)  (sizeof(x) / sizeof((x)[0]))
 
@@ -25,5 +26,10 @@ typedef struct SpnUVApi {
         const char *name;
         SpnHashMap *(*fn)(void);
 } SpnUVApi;
+
+typedef struct SpnUVLoopBuffer{
+        char slab[SPNUV_SLAB_SIZE];
+        int in_use;
+} SpnUVLoopBuffer;
 
 #endif

@@ -120,7 +120,7 @@ int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
 SpnHashMap *new_loop(int is_default)
 {
-        SpnHashMap *members = spn_hashmap_new();
+        SpnHashMap *self = spn_hashmap_new();
         size_t i;
         SpnValue value;
         uv_loop_t *uv_loop;
@@ -138,23 +138,32 @@ SpnHashMap *new_loop(int is_default)
                 { "getHandles", not_implemented }
         };
 
+        /* TODO: free SpnUVLoopBuffer */
+        SpnUVLoopBuffer *buffer = malloc(sizeof(SpnUVLoopBuffer));
+
         for (i = 0; i < COUNT(fns); i += 1) {
                 SpnValue fnval = spn_makenativefunc(fns[i].name, fns[i].fn);
-                spn_hashmap_set_strkey(members, fns[i].name, &fnval);
+                spn_hashmap_set_strkey(self, fns[i].name, &fnval);
                 spn_value_release(&fnval);
         }
 
         value = spn_makebool(is_default);
-        spn_hashmap_set_strkey(members, "isDefault", &value);
+        spn_hashmap_set_strkey(self, "isDefault", &value);
         spn_value_release(&value);
 
         uv_loop = uv_default_loop();
 
         value = spn_makeweakuserinfo(uv_loop);
-        spn_hashmap_set_strkey(members, "uv_loop", &value);
+        spn_hashmap_set_strkey(self, "uv_loop", &value);
         spn_value_release(&value);
 
-        return members;
+        value = spn_makeweakuserinfo(buffer);
+        spn_hashmap_set_strkey(self, "buffer", &value);
+        spn_value_release(&value);
+
+        uv_loop->data = self;
+
+        return self;
 }
 
 int loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx)

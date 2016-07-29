@@ -111,20 +111,33 @@ int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 void tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size,
                        uv_buf_t *buf)
 {
-        /* TODO: better approach */
-        uv_buf_t suggested_buffer = uv_buf_init(malloc(suggested_size),
-                                                suggested_size);
-        *buf = suggested_buffer;
+        SpnHashMap *loop = handle->loop->data;
+        SpnValue value = spn_hashmap_get_strkey(loop, "buffer");
+        SpnUVLoopBuffer *buffer = GETUINFO(SpnUVLoopBuffer, value);
+
+        if (buffer->in_use) {
+                buf->base = NULL;
+                buf->len = 0;
+        } else {
+                buf->base = buffer->slab;
+                buf->len = sizeof(buffer->slab);
+                buffer->in_use = 1;
+        }
 }
 
 void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
 {
-        uv_tcp_t *tcp_h = (uv_tcp_t *)handle;
-        SpnHashMap *self = tcp_h->data;
+        SpnHashMap *self = handle->data;
+        SpnHashMap *loop = handle->loop->data;
+
+        SpnValue buffer_value = spn_hashmap_get_strkey(loop, "buffer");
+        SpnUVLoopBuffer* buffer = GETUINFO(SpnUVLoopBuffer, buffer_value);
+
         SpnValue context_value = spn_hashmap_get_strkey(self, "readContext");
         void *ctx = GETUINFO(void *, context_value);
         SpnValue fn_value = spn_hashmap_get_strkey(self, "readCallback");
         SpnFunction *func = spn_funcvalue(&fn_value);
+
         char *data = NULL;
         int err = 0;
         SpnValue err_value;
@@ -133,16 +146,10 @@ void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
 
         if (nread < 0) {
                 err = nread;
-                if (buf->base) {
-                        free(buf->base);
-                }
                 uv_read_stop(handle);
-        } else if (nread == 0) {
-                free(buf->base);
-        } else {
+        } else if (nread != 0) {
                 data = malloc((nread + 1) * sizeof(char));
                 strncpy(data, buf->base, nread);
-                free(buf->base);
                 data[nread] = '\0';
         }
 
@@ -163,6 +170,8 @@ void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
         argv[1] = data_value;
 
         spn_ctx_callfunc(ctx, func, NULL, 2, argv);
+
+        buffer->in_use = 0;
 }
 
 int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
