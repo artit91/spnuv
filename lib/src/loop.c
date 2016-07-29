@@ -140,6 +140,7 @@ SpnHashMap *new_loop(int is_default)
 
         /* TODO: free SpnUVLoopBuffer */
         SpnUVLoopBuffer *buffer = malloc(sizeof(SpnUVLoopBuffer));
+        buffer->in_use = 0;
 
         for (i = 0; i < COUNT(fns); i += 1) {
                 SpnValue fnval = spn_makenativefunc(fns[i].name, fns[i].fn);
