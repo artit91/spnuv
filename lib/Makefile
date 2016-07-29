@@ -6,11 +6,11 @@ LIBUV_HEADERS=/Users/artit91/projects/libuv/include
 LIBUV_LIB=/Users/artit91/projects/libuv/build/Release/libuv.a
 
 INCLUDES=-I$(SPN_HEADERS) -I$(LIBUV_HEADERS)
+LIBS=-Wl $(LIBUV_LIB) -Wl $(SPN_LIB)
 
 SRCDIR = src
 
-LINKER_FLAGS = -Wl $(LIBUV_LIB)\
-	-Wl $(SPN_LIB)\
+LINKER_FLAGS = $(LIBS)\
 	-dynamiclib\
 	-undefined suppress\
 	-flat_namespace
