@@ -9,6 +9,8 @@ INCLUDES=-I$(SPN_HEADERS) -I$(LIBUV_HEADERS)
 LIBS=-Wl $(LIBUV_LIB) -Wl $(SPN_LIB)
 
 SRCDIR = src
+DISTDIR = build
+LIBNAME = spnuv
 
 LINKER_FLAGS = $(LIBS)\
 	-dynamiclib\
@@ -27,19 +29,19 @@ WARNINGS = -Wall -Wextra -Werror $(EXTRA_WARNINGS)
 
 CFLAGS = $(INCLUDES) -c -std=c89 -pedantic -fpic -fstrict-aliasing $(WARNINGS)
 
-OBJECTS = $(patsubst $(SRCDIR)/%.c, ./build/%.o, $(wildcard $(SRCDIR)/*.c))
+OBJECTS = $(patsubst $(SRCDIR)/%.c, $(DISTDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
 
-all: build build.dylib
+all: $(DISTDIR) $(LIBNAME).dylib
 
-build.dylib: $(OBJECTS)
-	$(CC) $(LINKER_FLAGS) ./build/*.o -o build.dylib
+$(LIBNAME).dylib: $(OBJECTS)
+	$(CC) $(LINKER_FLAGS) $(DISTDIR)/*.o -o $(LIBNAME).dylib
 
-build:
-	mkdir ./build
+$(DISTDIR):
+	mkdir $(DISTDIR)
 
-./build/%.o: $(SRCDIR)/%.c
+$(DISTDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -rf ./build
-	rm -rf build.dylib
+	rm -rf $(DISTDIR)
+	rm -f $(LIBNAME).dylib
