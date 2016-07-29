@@ -5,14 +5,14 @@ static SpnHashMap *default_loop = NULL;
 int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val;
+        SpnValue value;
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         return uv_run(uv_loop, UV_RUN_DEFAULT);
 }
@@ -20,14 +20,14 @@ int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val;
+        SpnValue value;
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         uv_stop(uv_loop);
 
@@ -37,14 +37,14 @@ int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val; 
+        SpnValue value; 
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         *ret = spn_makeint(uv_now(uv_loop));
         return 0;
@@ -53,14 +53,14 @@ int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val;
+        SpnValue value;
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         uv_update_time(uv_loop);
 
@@ -70,14 +70,14 @@ int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val;
+        SpnValue value;
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         *ret = spn_makeint(uv_backend_fd(uv_loop));
 
@@ -87,14 +87,14 @@ int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val;
+        SpnValue value;
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         *ret = spn_makefloat(uv_backend_timeout(uv_loop) / 1000.0);
 
@@ -104,14 +104,14 @@ int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        SpnValue val;
+        SpnValue value;
         uv_loop_t *uv_loop;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, val);
+        value = spn_hashmap_get_strkey(self, "uv_loop");
+        uv_loop = spn_ptrvalue(&value);
 
         *ret = spn_makebool(uv_loop_alive(uv_loop));
 

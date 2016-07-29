@@ -16,7 +16,7 @@ int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         self = spn_hashmapvalue(&argv[0]);
         value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, value);
+        uv_loop = spn_ptrvalue(&value);
 
         uv_ip4_addr("127.0.0.1", 8080, &addr);
         uv_tcp_init(uv_loop, tcp_h);
@@ -35,7 +35,7 @@ void tcp_listen_cb(uv_stream_t *handle, int status)
         SpnHashMap *self = tcp_h->data;
         SpnValue context_value = spn_hashmap_get_strkey(self, "listenContext");
         SpnValue fn_value = spn_hashmap_get_strkey(self, "listenCallback");
-        void *ctx = GETUINFO(void *, context_value);
+        void *ctx = spn_ptrvalue(&context_value);
         SpnFunction *func = spn_funcvalue(&fn_value);
         SpnValue err_value;
         SpnValue argv[1];
@@ -55,7 +55,6 @@ int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         /* TODO: backlog */
         SpnHashMap *self;
-        SpnValue val;
         uv_tcp_t *tcp_h;
         SpnValue value;
 
@@ -63,8 +62,8 @@ int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spn_value_retain(&argv[1]);
 
         self = spn_hashmapvalue(&argv[0]);
-        val = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = GETUINFO(uv_tcp_t, val);
+        value = spn_hashmap_get_strkey(self, "tcp_h");
+        tcp_h = spn_ptrvalue(&value);
 
         spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
         value = spn_makerawptr(ctx);
@@ -92,11 +91,11 @@ int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         self = spn_hashmapvalue(&argv[0]);
         value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = GETUINFO(uv_tcp_t, value);
+        tcp_h = spn_ptrvalue(&value);
 
         client = spn_hashmapvalue(&argv[1]);
         value = spn_hashmap_get_strkey(self, "uv_loop");
-        client_uv_loop = GETUINFO(uv_loop_t, value);
+        client_uv_loop = spn_ptrvalue(&value);
 
         uv_tcp_init(client_uv_loop, client_tcp_h);
         client_tcp_h->data = client;
@@ -113,7 +112,7 @@ void tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size,
 {
         SpnHashMap *loop = handle->loop->data;
         SpnValue value = spn_hashmap_get_strkey(loop, "buffer");
-        SpnUVLoopBuffer *buffer = GETUINFO(SpnUVLoopBuffer, value);
+        SpnUVLoopBuffer *buffer = spn_ptrvalue(&value);
 
         if (buffer->in_use) {
                 buf->base = NULL;
@@ -131,10 +130,10 @@ void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
         SpnHashMap *loop = handle->loop->data;
 
         SpnValue buffer_value = spn_hashmap_get_strkey(loop, "buffer");
-        SpnUVLoopBuffer* buffer = GETUINFO(SpnUVLoopBuffer, buffer_value);
+        SpnUVLoopBuffer* buffer = spn_ptrvalue(&buffer_value);
 
         SpnValue context_value = spn_hashmap_get_strkey(self, "readContext");
-        void *ctx = GETUINFO(void *, context_value);
+        void *ctx = spn_ptrvalue(&context_value);
         SpnValue fn_value = spn_hashmap_get_strkey(self, "readCallback");
         SpnFunction *func = spn_funcvalue(&fn_value);
 
@@ -186,7 +185,7 @@ int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         self = spn_hashmapvalue(&argv[0]);
         value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = GETUINFO(uv_tcp_t, value);
+        tcp_h = spn_ptrvalue(&value);
 
         value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "readCallback", &argv[1]);
@@ -219,7 +218,7 @@ int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         self = spn_hashmapvalue(&argv[0]);
         value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = GETUINFO(uv_tcp_t, value);
+        tcp_h = spn_ptrvalue(&value);
         str = spn_stringvalue(&argv[1]);
 
         buf = uv_buf_init(buffer, str->len);
@@ -254,7 +253,7 @@ int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         loop = spn_hashmapvalue(&argv[1]);
         value = spn_hashmap_get_strkey(loop, "uv_loop");
-        uv_loop = GETUINFO(uv_loop_t, value);
+        uv_loop = spn_ptrvalue(&value);
 
         for (i = 0; i < COUNT(fns); i += 1) {
                 SpnValue fnval = spn_makenativefunc(fns[i].name, fns[i].fn);
