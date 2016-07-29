@@ -9,9 +9,19 @@ INCLUDES=-I$(SPN_HEADERS) -I$(LIBUV_HEADERS)
 
 SRCDIR = src
 
-LINKER_FLAGS = -Wl $(LIBUV_LIB) -Wl $(SPN_LIB) -dynamiclib -undefined suppress -flat_namespace
+LINKER_FLAGS = -Wl $(LIBUV_LIB)\
+	-Wl $(SPN_LIB)\
+	-dynamiclib\
+	-undefined suppress\
+	-flat_namespace
 
-EXTRA_WARNINGS = -Wno-error=unused-function -Wno-error=sign-compare -Wno-error=logical-op-parentheses -Wimplicit-fallthrough -Wno-unused-parameter -Wno-error-deprecated-declarations -Wno-error=missing-field-initializers
+EXTRA_WARNINGS = -Wno-error=unused-function\
+	-Wno-error=sign-compare\
+	-Wno-error=logical-op-parentheses\
+	-Wimplicit-fallthrough\
+	-Wno-unused-parameter\
+	-Wno-error-deprecated-declarations\
+	-Wno-error=missing-field-initializers
 
 WARNINGS = -Wall -Wextra -Werror $(EXTRA_WARNINGS)
 
