@@ -153,11 +153,11 @@ SpnHashMap *new_loop(int is_default)
 
         uv_loop = uv_default_loop();
 
-        value = spn_makeweakuserinfo(uv_loop);
+        value = spn_makerawptr(uv_loop);
         spn_hashmap_set_strkey(self, "uv_loop", &value);
         spn_value_release(&value);
 
-        value = spn_makeweakuserinfo(buffer);
+        value = spn_makerawptr(buffer);
         spn_hashmap_set_strkey(self, "buffer", &value);
         spn_value_release(&value);
 
@@ -170,7 +170,7 @@ int loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnValue res;
 
-        res.type = SPN_TYPE_HASHMAP;
+        res.type = SPN_TYPE_OBJECT;
 
         if (!default_loop) {
                 SpnHashMap *val = new_loop(1);

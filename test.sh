@@ -1,5 +1,5 @@
 cd lib
 make clean
 make
-cd ../..
-./bin/spn ./spnuv/test.spn
+cd ..
+spn test.spn

@@ -22,7 +22,7 @@ int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         uv_tcp_init(uv_loop, tcp_h);
         tcp_h->data = self;
 
-        value = spn_makeweakuserinfo(tcp_h);
+        value = spn_makerawptr(tcp_h);
         spn_hashmap_set_strkey(self, "tcp_h", &value);
         spn_value_release(&value);
 
@@ -67,7 +67,7 @@ int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         tcp_h = GETUINFO(uv_tcp_t, val);
 
         spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
-        value = spn_makeweakuserinfo(ctx);
+        value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "listenContext", &value);
         spn_value_release(&value);
 
@@ -101,7 +101,7 @@ int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         uv_tcp_init(client_uv_loop, client_tcp_h);
         client_tcp_h->data = client;
 
-        value = spn_makeweakuserinfo(client_tcp_h);
+        value = spn_makerawptr(client_tcp_h);
         spn_hashmap_set_strkey(client, "tcp_h", &value);
         spn_value_release(&value);
 
@@ -188,7 +188,7 @@ int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         value = spn_hashmap_get_strkey(self, "tcp_h");
         tcp_h = GETUINFO(uv_tcp_t, value);
 
-        value = spn_makeweakuserinfo(ctx);
+        value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "readCallback", &argv[1]);
         spn_hashmap_set_strkey(self, "readContext", &value);
         spn_value_release(&value);
@@ -262,11 +262,11 @@ int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                 spn_value_release(&fnval);
         }
 
-        value = spn_makeweakuserinfo(uv_loop);
+        value = spn_makerawptr(uv_loop);
         spn_hashmap_set_strkey(members, "uv_loop", &value);
         spn_value_release(&value);
 
-        res.type = SPN_TYPE_HASHMAP;
+        res.type = SPN_TYPE_OBJECT;
         res.v.o = members;
 
         *ret = res;

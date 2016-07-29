@@ -28,7 +28,7 @@ SPN_LIB_OPEN_FUNC(ctx)
                 for (i = 0; i < COUNT(apis); i += 1) {
                         SpnValue value;
                         api = apis[i].fn();
-                        value.type = SPN_TYPE_HASHMAP;
+                        value.type = SPN_TYPE_OBJECT;
                         value.v.o = api;
                         spn_hashmap_set_strkey(library, apis[i].name, &value);
                         spn_value_release(&value);
@@ -37,7 +37,7 @@ SPN_LIB_OPEN_FUNC(ctx)
 
         init_refcount += 1;
 
-        library_value.type = SPN_TYPE_HASHMAP;
+        library_value.type = SPN_TYPE_OBJECT;
         library_value.v.o = library;
 
         spn_object_retain(library);

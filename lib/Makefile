@@ -1,6 +1,7 @@
 CC = gcc
 
-SPN_HEADERS=/Users/artit91/projects/spn/include/spn
+SPN_HEADERS=/usr/local/include/spn
+SPN_LIB=/usr/local/lib/libspn.a
 LIBUV_HEADERS=/Users/artit91/projects/libuv/include
 LIBUV_LIB=/Users/artit91/projects/libuv/build/Release/libuv.a
 
@@ -8,7 +9,7 @@ INCLUDES=-I$(SPN_HEADERS) -I$(LIBUV_HEADERS)
 
 SRCDIR = src
 
-LINKER_FLAGS = -Wl $(LIBUV_LIB) -dynamiclib -undefined suppress -flat_namespace
+LINKER_FLAGS = -Wl $(LIBUV_LIB) -Wl $(SPN_LIB) -dynamiclib -undefined suppress -flat_namespace
 
 EXTRA_WARNINGS = -Wno-error=unused-function -Wno-error=sign-compare -Wno-error=logical-op-parentheses -Wimplicit-fallthrough -Wno-unused-parameter -Wno-error-deprecated-declarations -Wno-error=missing-field-initializers
 

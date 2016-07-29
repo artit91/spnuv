@@ -1,4 +1,4 @@
-let spnuv = dynld("./spnuv/lib/build");
+let spnuv = dynld("./lib/build");
 
 let loop = spnuv.Loop.defaultLoop();
 
