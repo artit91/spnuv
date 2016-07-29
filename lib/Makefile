@@ -27,12 +27,18 @@ WARNINGS = -Wall -Wextra -Werror $(EXTRA_WARNINGS)
 
 CFLAGS = $(INCLUDES) -c -std=c89 -pedantic -fpic -fstrict-aliasing $(WARNINGS)
 
-all:
-	mkdir ./build
-	$(CC) $(CFLAGS) $(SRCDIR)/loop.c  -o ./build/loop.o
-	$(CC) $(CFLAGS) $(SRCDIR)/spnuv.c -o ./build/spnuv.o
-	$(CC) $(CFLAGS) $(SRCDIR)/tcp.c -o ./build/tcp.o
+OBJECTS = $(patsubst $(SRCDIR)/%.c, ./build/%.o, $(wildcard $(SRCDIR)/*.c))
+
+all: build build.dylib
+
+build.dylib: $(OBJECTS)
 	$(CC) $(LINKER_FLAGS) ./build/*.o -o build.dylib
+
+build:
+	mkdir ./build
+
+./build/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
 	rm -rf ./build
