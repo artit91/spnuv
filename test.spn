@@ -12,10 +12,8 @@ server.listen(fn err {
         print("connection error: ", err);
         return;
     }
-    print("new connection");
     let client = spnuv.TCP.new(loop);
     server.accept(client);
-    print("new client");
     client.read(fn err data {
         if (err != nil) {
             print("read error: ", err);
@@ -23,9 +21,7 @@ server.listen(fn err {
         }
         if (data != nil) {
             print("new data: ", data);
-            print("writing data: ", data);
             client.write(data);
-            print("data has written");
         }
     });
 });
