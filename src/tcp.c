@@ -226,7 +226,7 @@ int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         SpnValue value;
         uv_tcp_t *tcp_h;
         SpnString *str;
-        uv_write_t *req = malloc(sizeof(uv_write_t));
+        uv_write_t *req;
         uv_buf_t buf;
 
         spn_value_retain(&argv[0]);
@@ -239,6 +239,8 @@ int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         buf.base = str->cstr;
         buf.len = str->len;
+
+        req = malloc(sizeof(uv_write_t));
 
         return uv_write(req, (uv_stream_t *)tcp_h, &buf, 1, tcp_write_cb);
 }
