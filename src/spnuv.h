@@ -5,6 +5,7 @@
 
 #define USE_DYNAMIC_LOADING 1
 #define SPNUV_SLAB_SIZE 65536
+#define SPNUV_CHUNK_SIZE 5
 #define COUNT(x) (sizeof(x) / sizeof((x)[0]))
 
 #include "uv.h"

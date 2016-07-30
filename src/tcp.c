@@ -164,7 +164,7 @@ void tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
                 err = nread;
                 uv_read_stop(handle);
         } else if (nread != 0) {
-                data = malloc((nread + 1) * sizeof(char));
+                data = malloc(nread + 1);
                 strncpy(data, buf->base, nread);
                 data[nread] = '\0';
         }
@@ -221,29 +221,53 @@ void tcp_write_cb(uv_write_t* req, int status)
 
 int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: rewrite */
+        /* TODO: uv_write2 for pipes */
         SpnHashMap *self;
         SpnValue value;
         uv_tcp_t *tcp_h;
         SpnString *str;
-        char buffer[4096];
-        uv_buf_t buf;
-        uv_write_t req;
+        uv_write_t *req = malloc(sizeof(uv_write_t));
+        size_t i;
+        size_t req_c;
+        uv_buf_t *buffers;
 
         spn_value_retain(&argv[0]);
-        spn_value_retain(&argv[1]);
-
         self = spn_hashmapvalue(&argv[0]);
+        spn_value_retain(&argv[1]);
+        str = spn_stringvalue(&argv[1]);
+        
         value = spn_hashmap_get_strkey(self, "tcp_h");
         tcp_h = spn_ptrvalue(&value);
-        str = spn_stringvalue(&argv[1]);
 
-        buf = uv_buf_init(buffer, str->len);
+        req_c = str->len % SPNUV_CHUNK_SIZE ?
+                        str->len / SPNUV_CHUNK_SIZE + 1 :
+                        str->len / SPNUV_CHUNK_SIZE;
 
-        buf.len = str->len;
-        buf.base = str->cstr;
+        buffers = malloc(sizeof(uv_buf_t) * req_c);
 
-        return uv_write(&req, (uv_stream_t *)tcp_h, &buf, 1, tcp_write_cb);
+        for (i = 0; i < str->len / SPNUV_CHUNK_SIZE; i += 1) {
+                char *buffer = malloc(SPNUV_CHUNK_SIZE + 1);
+                uv_buf_t buf;
+                strncpy(buffer, str->cstr + i * SPNUV_CHUNK_SIZE,
+                        SPNUV_CHUNK_SIZE);
+                buffer[SPNUV_CHUNK_SIZE] = '\0';
+                buf.base = buffer;
+                buf.len = SPNUV_CHUNK_SIZE + 1;
+                buffers[i] = buf;
+        }
+
+        if (str->len % SPNUV_CHUNK_SIZE) {
+                char *buffer = malloc(SPNUV_CHUNK_SIZE + 1);
+                uv_buf_t buf;
+                strncpy(buffer, str->cstr + i * SPNUV_CHUNK_SIZE,
+                        str->len % SPNUV_CHUNK_SIZE);
+                buffer[SPNUV_CHUNK_SIZE] = '\0';
+                buf.base = buffer;
+                buf.len = str->len % SPNUV_CHUNK_SIZE + 1;
+                buffers[i] = buf;
+        }
+
+        return uv_write(req, (uv_stream_t *)tcp_h, buffers, req_c, tcp_write_cb);
 }
 
 int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
