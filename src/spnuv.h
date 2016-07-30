@@ -1,7 +1,7 @@
 #ifndef __spnuv__
 #define __spnuv__
 
-/* TODO: error objects, check params, implement all loop and tcp calls */
+/* TODO: error objects, check params */
 
 #define USE_DYNAMIC_LOADING 1
 #define SPNUV_SLAB_SIZE 65536

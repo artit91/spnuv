@@ -3,11 +3,6 @@
 static unsigned init_refcount = 0;
 static SpnHashMap *library = NULL;
 
-int spnuv_not_implemented(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
-{
-        return 1;
-}
-
 SPN_LIB_OPEN_FUNC(ctx)
 {
         SpnValue library_value;

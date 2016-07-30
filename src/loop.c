@@ -34,90 +34,6 @@ int spnuv_loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return  0;
 }
 
-int spnuv_loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
-{
-        SpnHashMap *self;
-        SpnValue value; 
-        uv_loop_t *uv_loop;
-
-        spn_value_retain(&argv[0]);
-
-        self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
-
-        *ret = spn_makeint(uv_now(uv_loop));
-        return 0;
-}
-
-int spnuv_loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
-{
-        SpnHashMap *self;
-        SpnValue value;
-        uv_loop_t *uv_loop;
-
-        spn_value_retain(&argv[0]);
-
-        self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
-
-        uv_update_time(uv_loop);
-
-        return 0;
-}
-
-int spnuv_loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
-{
-        SpnHashMap *self;
-        SpnValue value;
-        uv_loop_t *uv_loop;
-
-        spn_value_retain(&argv[0]);
-
-        self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
-
-        *ret = spn_makeint(uv_backend_fd(uv_loop));
-
-        return 0;
-}
-
-int spnuv_loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
-{
-        SpnHashMap *self;
-        SpnValue value;
-        uv_loop_t *uv_loop;
-
-        spn_value_retain(&argv[0]);
-
-        self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
-
-        *ret = spn_makefloat(uv_backend_timeout(uv_loop) / 1000.0);
-
-        return 0;
-}
-
-int spnuv_loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
-{
-        SpnHashMap *self;
-        SpnValue value;
-        uv_loop_t *uv_loop;
-
-        spn_value_retain(&argv[0]);
-
-        self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
-
-        *ret = spn_makebool(uv_loop_alive(uv_loop));
-
-        return 0;
-}
-
 SpnHashMap *spnuv_loop_new(int is_default)
 {
         SpnHashMap *self = spn_hashmap_new();
@@ -127,15 +43,7 @@ SpnHashMap *spnuv_loop_new(int is_default)
 
         static const SpnExtFunc fns[] = {
                 { "run", spnuv_loop_run },
-                { "stop", spnuv_loop_stop },
-                { "now", spnuv_loop_now },
-                { "updateTime", spnuv_loop_update_time },
-                { "fileno", spnuv_loop_fileno },
-                { "getTimeout", spnuv_loop_get_timeout },
-                { "queueWork", spnuv_not_implemented },
-                { "excepthook", spnuv_not_implemented },
-                { "isAlive", spnuv_loop_isalive },
-                { "getHandles", spnuv_not_implemented }
+                { "stop", spnuv_loop_stop }
         };
 
         /* TODO: free SpnUVLoopBuffer */
@@ -193,8 +101,7 @@ SpnHashMap *spnuv_loop_api(void)
         size_t i;
 
         static const SpnExtFunc fns[] = {
-                { "defaultLoop", spnuv_loop_default },
-                { "new", spnuv_not_implemented }
+                { "defaultLoop", spnuv_loop_default }
         };
 
         for (i = 0; i < COUNT(fns); i += 1) {
