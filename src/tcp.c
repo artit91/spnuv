@@ -67,20 +67,27 @@ int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         SpnHashMap *self;
         uv_tcp_t *tcp_h;
         SpnValue value;
+        int backlog = 511;
 
         spn_value_retain(&argv[0]);
-        spn_value_retain(&argv[1]);
-
         self = spn_hashmapvalue(&argv[0]);
+        spn_value_retain(&argv[1]);
+        if (argc > 2) {
+            backlog = spn_intvalue(&argv[1]);
+            spn_value_retain(&argv[2]);
+            spn_hashmap_set_strkey(self, "listenCallback", &argv[2]);
+        } else {
+            spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
+        }
+
         value = spn_hashmap_get_strkey(self, "tcp_h");
         tcp_h = spn_ptrvalue(&value);
-
-        spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
+        
         value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "listenContext", &value);
         spn_value_release(&value);
 
-        return uv_listen((uv_stream_t *)tcp_h, 511, tcp_listen_cb);
+        return uv_listen((uv_stream_t *)tcp_h, backlog, tcp_listen_cb);
 }
 
 int tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
