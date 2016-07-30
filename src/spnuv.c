@@ -1,6 +1,6 @@
 #include "spnuv.h"
 
-static unsigned init_refcount = 0;
+static size_t init_refcount = 0;
 static SpnHashMap *library = NULL;
 
 SPN_LIB_OPEN_FUNC(ctx)
