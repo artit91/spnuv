@@ -63,7 +63,6 @@ void tcp_listen_cb(uv_stream_t *handle, int status)
 
 int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: backlog */
         SpnHashMap *self;
         uv_tcp_t *tcp_h;
         SpnValue value;
