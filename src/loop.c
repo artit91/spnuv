@@ -2,7 +2,7 @@
 
 static SpnHashMap *default_loop = NULL;
 
-int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
@@ -17,7 +17,7 @@ int loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return uv_run(uv_loop, UV_RUN_DEFAULT);
 }
 
-int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
@@ -34,7 +34,7 @@ int loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return  0;
 }
 
-int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value; 
@@ -50,7 +50,7 @@ int loop_now(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return 0;
 }
 
-int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
@@ -67,7 +67,7 @@ int loop_update_time(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return 0;
 }
 
-int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
@@ -84,7 +84,7 @@ int loop_fileno(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return 0;
 }
 
-int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
@@ -101,7 +101,7 @@ int loop_get_timeout(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return 0;
 }
 
-int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
@@ -118,7 +118,7 @@ int loop_isalive(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return 0;
 }
 
-SpnHashMap *new_loop(int is_default)
+SpnHashMap *spnuv_loop_new(int is_default)
 {
         SpnHashMap *self = spn_hashmap_new();
         size_t i;
@@ -126,16 +126,16 @@ SpnHashMap *new_loop(int is_default)
         uv_loop_t *uv_loop;
 
         static const SpnExtFunc fns[] = {
-                { "run", loop_run },
-                { "stop", loop_stop },
-                { "now", loop_now },
-                { "updateTime", loop_update_time },
-                { "fileno", loop_fileno },
-                { "getTimeout", loop_get_timeout },
-                { "queueWork", not_implemented },
-                { "excepthook", not_implemented },
-                { "isAlive", loop_isalive },
-                { "getHandles", not_implemented }
+                { "run", spnuv_loop_run },
+                { "stop", spnuv_loop_stop },
+                { "now", spnuv_loop_now },
+                { "updateTime", spnuv_loop_update_time },
+                { "fileno", spnuv_loop_fileno },
+                { "getTimeout", spnuv_loop_get_timeout },
+                { "queueWork", spnuv_not_implemented },
+                { "excepthook", spnuv_not_implemented },
+                { "isAlive", spnuv_loop_isalive },
+                { "getHandles", spnuv_not_implemented }
         };
 
         /* TODO: free SpnUVLoopBuffer */
@@ -167,14 +167,14 @@ SpnHashMap *new_loop(int is_default)
         return self;
 }
 
-int loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
+int spnuv_loop_default(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnValue res;
 
         res.type = SPN_TYPE_OBJECT;
 
         if (!default_loop) {
-                SpnHashMap *val = new_loop(1);
+                SpnHashMap *val = spnuv_loop_new(1);
                 if (!val) {
                         return 1;
                 }
@@ -193,8 +193,8 @@ SpnHashMap *spnuv_loop_api(void)
         size_t i;
 
         static const SpnExtFunc fns[] = {
-                { "defaultLoop", loop_default },
-                { "new", not_implemented }
+                { "defaultLoop", spnuv_loop_default },
+                { "new", spnuv_not_implemented }
         };
 
         for (i = 0; i < COUNT(fns); i += 1) {

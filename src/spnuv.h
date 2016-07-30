@@ -13,7 +13,7 @@
 #include "str.h"
 #include "hashmap.h"
 
-int not_implemented(SpnValue *, int, SpnValue[], void *);
+int spnuv_not_implemented(SpnValue *, int, SpnValue[], void *);
 
 SpnHashMap *spnuv_loop_api(void);
 void spnuv_loop_api_destroy(void);
