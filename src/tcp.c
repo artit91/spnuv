@@ -221,15 +221,13 @@ void tcp_write_cb(uv_write_t* req, int status)
 
 int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: uv_write2 for pipes */
+        /* TODO: uv_write2 for pipes, free uv_write_t */
         SpnHashMap *self;
         SpnValue value;
         uv_tcp_t *tcp_h;
         SpnString *str;
         uv_write_t *req = malloc(sizeof(uv_write_t));
-        size_t i;
-        size_t req_c;
-        uv_buf_t *buffers;
+        uv_buf_t buf;
 
         spn_value_retain(&argv[0]);
         self = spn_hashmapvalue(&argv[0]);
@@ -239,35 +237,10 @@ int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         value = spn_hashmap_get_strkey(self, "tcp_h");
         tcp_h = spn_ptrvalue(&value);
 
-        req_c = str->len % SPNUV_CHUNK_SIZE ?
-                        str->len / SPNUV_CHUNK_SIZE + 1 :
-                        str->len / SPNUV_CHUNK_SIZE;
+        buf.base = str->cstr;
+        buf.len = str->len;
 
-        buffers = malloc(sizeof(uv_buf_t) * req_c);
-
-        for (i = 0; i < str->len / SPNUV_CHUNK_SIZE; i += 1) {
-                char *buffer = malloc(SPNUV_CHUNK_SIZE + 1);
-                uv_buf_t buf;
-                strncpy(buffer, str->cstr + i * SPNUV_CHUNK_SIZE,
-                        SPNUV_CHUNK_SIZE);
-                buffer[SPNUV_CHUNK_SIZE] = '\0';
-                buf.base = buffer;
-                buf.len = SPNUV_CHUNK_SIZE + 1;
-                buffers[i] = buf;
-        }
-
-        if (str->len % SPNUV_CHUNK_SIZE) {
-                char *buffer = malloc(SPNUV_CHUNK_SIZE + 1);
-                uv_buf_t buf;
-                strncpy(buffer, str->cstr + i * SPNUV_CHUNK_SIZE,
-                        str->len % SPNUV_CHUNK_SIZE);
-                buffer[SPNUV_CHUNK_SIZE] = '\0';
-                buf.base = buffer;
-                buf.len = str->len % SPNUV_CHUNK_SIZE + 1;
-                buffers[i] = buf;
-        }
-
-        return uv_write(req, (uv_stream_t *)tcp_h, buffers, req_c, tcp_write_cb);
+        return uv_write(req, (uv_stream_t *)tcp_h, &buf, 1, tcp_write_cb);
 }
 
 int tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
