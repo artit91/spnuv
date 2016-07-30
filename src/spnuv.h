@@ -31,4 +31,6 @@ typedef struct SpnUVLoopBuffer{
         int in_use;
 } SpnUVLoopBuffer;
 
+int spnuv_util_parse_addr(char *, int, struct sockaddr_storage *);
+
 #endif

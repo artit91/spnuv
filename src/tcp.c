@@ -2,23 +2,33 @@
 
 int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: address, port, flags, free tcp_h */
+        /* TODO: free tcp_h */
         SpnHashMap *self;
         SpnValue value;
+        SpnString *host;
+        long port;
+        long flags = 0;
         uv_loop_t *uv_loop;
 
         uv_tcp_t *tcp_h = malloc(sizeof(uv_tcp_t));
-        struct sockaddr_in addr;
+        struct sockaddr_storage addr;
 
         spn_value_retain(&argv[0]);
-        spn_value_retain(&argv[1]);
-        spn_value_retain(&argv[2]);
-
         self = spn_hashmapvalue(&argv[0]);
+        spn_value_retain(&argv[1]);
+        host = spn_stringvalue(&argv[1]);
+        spn_value_retain(&argv[2]);
+        port = spn_intvalue(&argv[2]);
+
+        if (argc > 3) {
+            spn_value_retain(&argv[3]);
+            flags = spn_intvalue(&argv[3]);
+        }
+
         value = spn_hashmap_get_strkey(self, "uv_loop");
         uv_loop = spn_ptrvalue(&value);
 
-        uv_ip4_addr("127.0.0.1", 8080, &addr);
+        spnuv_util_parse_addr(host->cstr, port, &addr);
         uv_tcp_init(uv_loop, tcp_h);
         tcp_h->data = self;
 
@@ -26,7 +36,7 @@ int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spn_hashmap_set_strkey(self, "tcp_h", &value);
         spn_value_release(&value);
 
-        return uv_tcp_bind(tcp_h, (struct sockaddr *)&addr, 0);
+        return uv_tcp_bind(tcp_h, (struct sockaddr *)&addr, flags);
 }
 
 void tcp_listen_cb(uv_stream_t *handle, int status)
