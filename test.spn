@@ -20,7 +20,6 @@ server.listen(fn err {
             return;
         }
         if (data != nil) {
-            print("new data: ", data);
             client.write(data);
         }
     });
