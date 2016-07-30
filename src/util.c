@@ -1,5 +1,6 @@
 #include "spnuv.h"
 
+/* TODO: error handling */
 int spnuv_util_parse_addr(char *host, int port, struct sockaddr_storage *ss) {
         struct in_addr addr4;
         struct in6_addr addr6;

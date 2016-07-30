@@ -1,8 +1,8 @@
 #include "spnuv.h"
 
+/* TODO: free tcp_h */
 int spnuv_tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: free tcp_h */
         SpnHashMap *self;
         SpnValue value;
         SpnString *host;
@@ -90,9 +90,9 @@ int spnuv_tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return uv_listen((uv_stream_t *)tcp_h, backlog, spnuv_tcp_listen_cb);
 }
 
+/* TODO: free client_tcp_h */
 int spnuv_tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: free client_tcp_h */
         SpnHashMap *self;
         uv_tcp_t *tcp_h;
 
@@ -192,7 +192,6 @@ void spnuv_tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
 
 int spnuv_tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: test context/callbacks */
         SpnHashMap *self;
         SpnValue value;
         uv_tcp_t *tcp_h;
@@ -214,9 +213,9 @@ int spnuv_tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                              (uv_read_cb)spnuv_tcp_read_cb);
 }
 
+/* TODO: write */
 void spnuv_tcp_write_cb(uv_write_t* req, int status)
 {
-        /* TODO: write */
         free(req);
 }
 
@@ -306,7 +305,4 @@ SpnHashMap *spnuv_tcp_api(void)
         return api;
 }
 
-void spnuv_tcp_api_destroy(void)
-{
-        /* empty function yet */
-}
+void spnuv_tcp_api_destroy(void) {}
