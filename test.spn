@@ -20,7 +20,12 @@ server.listen(fn err {
             return;
         }
         if (data != nil) {
-            client.write(data);
+            client.write(data, fn err {
+                if (err != nil) {
+                    print("write error: ", err);
+                    return;
+                }
+            });
         }
     });
 });

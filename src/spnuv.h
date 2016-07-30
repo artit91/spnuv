@@ -28,10 +28,15 @@ typedef struct SpnUVApi {
         SpnHashMap *(*fn)(void);
 } SpnUVApi;
 
-typedef struct SpnUVLoopBuffer{
+typedef struct SpnUVLoopBuffer {
         char slab[SPNUV_SLAB_SIZE];
         int in_use;
 } SpnUVLoopBuffer;
+
+typedef struct SpnUVWriteData {
+        void *ctx;
+        SpnFunction *callback;
+} SpnUVWriteData;
 
 int spnuv_util_parse_addr(char *, int, struct sockaddr_storage *);
 

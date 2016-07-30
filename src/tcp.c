@@ -213,9 +213,22 @@ int spnuv_tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                              (uv_read_cb)spnuv_tcp_read_cb);
 }
 
-/* TODO: write */
 void spnuv_tcp_write_cb(uv_write_t* req, int status)
 {
+        SpnUVWriteData *wrd;
+        SpnValue argv[1];
+
+        if (req->data) {
+                wrd = (SpnUVWriteData *)req->data;
+                if (status != 0) {
+                        argv[0] = spn_makeint(status);
+                } else {
+                        argv[0] = spn_nilval;
+                }
+                spn_ctx_callfunc(wrd->ctx, wrd->callback, NULL, 1, argv);
+                free(req->data);
+        }
+
         free(req);
 }
 
@@ -227,11 +240,19 @@ int spnuv_tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         SpnString *str;
         uv_write_t *req;
         uv_buf_t buf;
+        SpnUVWriteData *wrd = NULL;
 
         spn_value_retain(&argv[0]);
         self = spn_hashmapvalue(&argv[0]);
         spn_value_retain(&argv[1]);
         str = spn_stringvalue(&argv[1]);
+
+        if (argc > 2) {
+                spn_value_retain(&argv[2]);
+                wrd = malloc(sizeof(SpnUVWriteData));
+                wrd->ctx = ctx;
+                wrd->callback = spn_funcvalue(&argv[2]);
+        }
         
         value = spn_hashmap_get_strkey(self, "tcp_h");
         tcp_h = spn_ptrvalue(&value);
@@ -240,6 +261,11 @@ int spnuv_tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         buf.len = str->len;
 
         req = malloc(sizeof(uv_write_t));
+        memset(req, 0, sizeof(uv_write_t));
+
+        if (wrd) {
+                req->data = wrd;
+        }
 
         return uv_write(req, (uv_stream_t *)tcp_h, &buf, 1, spnuv_tcp_write_cb);
 }
