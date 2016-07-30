@@ -216,6 +216,7 @@ int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
 void tcp_write_cb(uv_write_t* req, int status)
 {
+        /* TODO: write */
         free(req);
 }
 
