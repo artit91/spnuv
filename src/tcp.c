@@ -216,12 +216,11 @@ int tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
 void tcp_write_cb(uv_write_t* req, int status)
 {
-        /* TODO: write */
+        free(req);
 }
 
 int tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
-        /* TODO: uv_write2 for pipes, free uv_write_t */
         SpnHashMap *self;
         SpnValue value;
         uv_tcp_t *tcp_h;
