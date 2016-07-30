@@ -21,8 +21,8 @@ int tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         port = spn_intvalue(&argv[2]);
 
         if (argc > 3) {
-            spn_value_retain(&argv[3]);
-            flags = spn_intvalue(&argv[3]);
+                spn_value_retain(&argv[3]);
+                flags = spn_intvalue(&argv[3]);
         }
 
         value = spn_hashmap_get_strkey(self, "uv_loop");
@@ -71,12 +71,13 @@ int tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spn_value_retain(&argv[0]);
         self = spn_hashmapvalue(&argv[0]);
         spn_value_retain(&argv[1]);
+
         if (argc > 2) {
-            backlog = spn_intvalue(&argv[1]);
-            spn_value_retain(&argv[2]);
-            spn_hashmap_set_strkey(self, "listenCallback", &argv[2]);
+                backlog = spn_intvalue(&argv[1]);
+                spn_value_retain(&argv[2]);
+                spn_hashmap_set_strkey(self, "listenCallback", &argv[2]);
         } else {
-            spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
+                spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
         }
 
         value = spn_hashmap_get_strkey(self, "tcp_h");
