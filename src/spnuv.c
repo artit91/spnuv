@@ -3,6 +3,11 @@
 static size_t init_refcount = 0;
 static SpnHashMap *library = NULL;
 
+typedef struct SpnUVApi {
+        const char *name;
+        SpnHashMap *(*fn)(void);
+} SpnUVApi;
+
 SPN_LIB_OPEN_FUNC(ctx)
 {
         SpnValue library_value;

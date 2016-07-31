@@ -19,11 +19,7 @@ SpnHashMap *spnuv_signal_api(void);
 
 void spnuv_loop_api_destroy(void);
 
-typedef struct SpnUVApi {
-        const char *name;
-        SpnHashMap *(*fn)(void);
-} SpnUVApi;
-
+/* loop.c */
 typedef struct SpnUVLoopBuffer {
         char slab[SPNUV_SLAB_SIZE];
         int in_use;
