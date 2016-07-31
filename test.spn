@@ -1,33 +1,51 @@
 let spnuv = dynld("spnuv");
+
 let loop = spnuv.Loop.defaultLoop();
 let server = spnuv.TCP.new(loop);
-let host = "0.0.0.0";
-let port = 8080;
+let signal = spnuv.Signal.new(loop);
+let clients = {};
 
-server.bind(host, port);
+let SIGINT = 2;
 
-print("server listening on ", host, ":", port);
-server.listen(fn err {
-    if (err != nil) {
-        print("connection error: ", err);
-        return;
-    }
-    let client = spnuv.TCP.new(loop);
-    server.accept(client);
-    client.read(fn err data {
+fn onRead client {
+    return fn err data {
         if (err != nil) {
-            print("read error: ", err);
-            return;
+            if (err.name != "EOF") {
+                print("read error: ", err);
+            }
+            return client.close(fn -> clients[client.id] = nil);
         }
         if (data != nil) {
             client.write(data, fn err {
                 if (err != nil) {
-                    print("write error: ", err);
-                    return;
+                    return print("write error: ", err);
                 }
             });
         }
-    });
-});
+    };
+}
+
+fn onConnection err {
+    if (err != nil) {
+        return print("connection error: ", err);
+    }
+    let client = spnuv.TCP.new(loop);
+    server.accept(client);
+    clients[client.id] = client;
+    client.read(onRead(client));
+}
+
+fn signalCallback signum {
+    signal.close();
+    clients.foreach(fn client -> client.close());
+    server.close();
+}
+
+server.bind("0.0.0.0", 1234);
+server.listen(onConnection);
+
+signal.start(SIGINT, signalCallback);
+
+print("Server listening on 0.0.0.0:1234");
 
 loop.run();

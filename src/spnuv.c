@@ -11,6 +11,7 @@ SPN_LIB_OPEN_FUNC(ctx)
                 static const SpnUVApi apis[] = {
                         { "Loop", spnuv_loop_api },
                         { "TCP", spnuv_tcp_api },
+                        { "Signal", spnuv_signal_api }
                 };
 
                 SpnHashMap *api;
@@ -45,8 +46,6 @@ SPN_LIB_CLOSE_FUNC(ctx)
         init_refcount -= 1;
         if (init_refcount == 0) {
                 spnuv_loop_api_destroy();
-                spnuv_tcp_api_destroy();
-
                 spn_object_release(library);
                 library = NULL;
         }

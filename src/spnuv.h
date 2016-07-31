@@ -1,9 +1,7 @@
 #ifndef __spnuv__
 #define __spnuv__
 
-/* TODO: error objects */
 /* TODO: check params */
-/* TODO: test context/callbacks */
 
 #define USE_DYNAMIC_LOADING 1
 #define SPNUV_SLAB_SIZE 65536
@@ -15,13 +13,11 @@
 #include "str.h"
 #include "hashmap.h"
 
-int spnuv_not_implemented(SpnValue *, int, SpnValue[], void *);
-
 SpnHashMap *spnuv_loop_api(void);
-void spnuv_loop_api_destroy(void);
-
 SpnHashMap *spnuv_tcp_api(void);
-void spnuv_tcp_api_destroy(void);
+SpnHashMap *spnuv_signal_api(void);
+
+void spnuv_loop_api_destroy(void);
 
 typedef struct SpnUVApi {
         const char *name;
@@ -38,6 +34,8 @@ typedef struct SpnUVWriteData {
         SpnFunction *callback;
 } SpnUVWriteData;
 
-int spnuv_util_parse_addr(char *, int, struct sockaddr_storage *);
+int spnuv_parse_addr(char *, int, struct sockaddr_storage *);
+SpnValue spnuv_get_error(int, const char *, const char *);
+int spnuv_close(SpnValue *, int, SpnValue [], void *);
 
 #endif

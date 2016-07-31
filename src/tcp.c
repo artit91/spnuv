@@ -1,6 +1,7 @@
 #include "spnuv.h"
 
-/* TODO: free tcp_h */
+static size_t spnuv_tcp_seq = 0;
+
 int spnuv_tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
@@ -10,7 +11,7 @@ int spnuv_tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         long flags = 0;
         uv_loop_t *uv_loop;
 
-        uv_tcp_t *tcp_h = malloc(sizeof(uv_tcp_t));
+        uv_tcp_t *handle = malloc(sizeof(uv_tcp_t));
         struct sockaddr_storage addr;
 
         spn_value_retain(&argv[0]);
@@ -28,43 +29,51 @@ int spnuv_tcp_bind(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         value = spn_hashmap_get_strkey(self, "uv_loop");
         uv_loop = spn_ptrvalue(&value);
 
-        spnuv_util_parse_addr(host->cstr, port, &addr);
-        uv_tcp_init(uv_loop, tcp_h);
-        tcp_h->data = self;
+        if (spnuv_parse_addr(host->cstr, port, &addr)) {
+                fprintf(stderr, "Host parse error\n");
+                return -1;
+        }
 
-        value = spn_makerawptr(tcp_h);
-        spn_hashmap_set_strkey(self, "tcp_h", &value);
+        uv_tcp_init(uv_loop, handle);
+        handle->data = self;
+
+        value = spn_makerawptr(handle);
+        spn_hashmap_set_strkey(self, "handle", &value);
         spn_value_release(&value);
 
-        return uv_tcp_bind(tcp_h, (struct sockaddr *)&addr, flags);
+        return uv_tcp_bind(handle, (struct sockaddr *)&addr, flags);
 }
 
 void spnuv_tcp_listen_cb(uv_stream_t *handle, int status)
 {
-        uv_tcp_t *tcp_h = (uv_tcp_t *)handle;
-        SpnHashMap *self = tcp_h->data;
+        SpnHashMap *self = handle->data;
         SpnValue context_value = spn_hashmap_get_strkey(self, "listenContext");
         SpnValue fn_value = spn_hashmap_get_strkey(self, "listenCallback");
         void *ctx = spn_ptrvalue(&context_value);
         SpnFunction *func = spn_funcvalue(&fn_value);
         SpnValue err_value;
         SpnValue argv[1];
+        int err;
 
         if (status != 0) {
-                err_value = spn_makeint(status);
+                err_value = spnuv_get_error(status, uv_err_name(status),
+                                            uv_strerror(status));
         } else {
                 err_value = spn_nilval;
         }
 
         argv[0] = err_value;
 
-        spn_ctx_callfunc(ctx, func, NULL, 1, argv);
+        err = spn_ctx_callfunc(ctx, func, NULL, 1, argv);
+        if (err) {
+                fprintf(stderr, "%s\n", spn_ctx_geterrmsg(ctx));
+        }
 }
 
 int spnuv_tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        uv_tcp_t *tcp_h;
+        uv_tcp_t *handle;
         SpnValue value;
         int backlog = 511;
 
@@ -80,26 +89,25 @@ int spnuv_tcp_listen(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                 spn_hashmap_set_strkey(self, "listenCallback", &argv[1]);
         }
 
-        value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = spn_ptrvalue(&value);
+        value = spn_hashmap_get_strkey(self, "handle");
+        handle = spn_ptrvalue(&value);
         
         value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "listenContext", &value);
         spn_value_release(&value);
 
-        return uv_listen((uv_stream_t *)tcp_h, backlog, spnuv_tcp_listen_cb);
+        return uv_listen((uv_stream_t *)handle, backlog, spnuv_tcp_listen_cb);
 }
 
-/* TODO: free client_tcp_h */
 int spnuv_tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
-        uv_tcp_t *tcp_h;
+        uv_tcp_t *handle;
 
         SpnHashMap *client;
         uv_loop_t *client_uv_loop;
 
-        uv_tcp_t *client_tcp_h = malloc(sizeof(uv_tcp_t));
+        uv_tcp_t *client_handle = malloc(sizeof(uv_tcp_t));
 
         SpnValue value;
 
@@ -107,25 +115,25 @@ int spnuv_tcp_accept(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spn_value_retain(&argv[1]);
 
         self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = spn_ptrvalue(&value);
+        value = spn_hashmap_get_strkey(self, "handle");
+        handle = spn_ptrvalue(&value);
 
         client = spn_hashmapvalue(&argv[1]);
         value = spn_hashmap_get_strkey(self, "uv_loop");
         client_uv_loop = spn_ptrvalue(&value);
 
-        uv_tcp_init(client_uv_loop, client_tcp_h);
-        client_tcp_h->data = client;
+        uv_tcp_init(client_uv_loop, client_handle);
+        client_handle->data = client;
 
-        value = spn_makerawptr(client_tcp_h);
-        spn_hashmap_set_strkey(client, "tcp_h", &value);
+        value = spn_makerawptr(client_handle);
+        spn_hashmap_set_strkey(client, "handle", &value);
         spn_value_release(&value);
 
-        return uv_accept((uv_stream_t *)tcp_h, (uv_stream_t *)client_tcp_h);
+        return uv_accept((uv_stream_t *)handle, (uv_stream_t *)client_handle);
 }
 
 void spnuv_tcp_read_alloc_cb(uv_handle_t* handle, size_t suggested_size,
-                       uv_buf_t *buf)
+                             uv_buf_t *buf)
 {
         SpnHashMap *loop = handle->loop->data;
         SpnValue value = spn_hashmap_get_strkey(loop, "buffer");
@@ -170,7 +178,8 @@ void spnuv_tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
         }
 
         if (err != 0) {
-                err_value = spn_makeint(err);
+                err_value = spnuv_get_error(err, uv_err_name(err),
+                                            uv_strerror(err));
         } else {
                 err_value = spn_nilval;
         }
@@ -185,30 +194,32 @@ void spnuv_tcp_read_cb(uv_stream_t* handle, int nread, const uv_buf_t* buf)
         argv[0] = err_value;
         argv[1] = data_value;
 
-        spn_ctx_callfunc(ctx, func, NULL, 2, argv);
-
         buffer->in_use = 0;
+        err = spn_ctx_callfunc(ctx, func, NULL, 2, argv);
+        if (err) {
+                fprintf(stderr, "%s\n", spn_ctx_geterrmsg(ctx));
+        }
 }
 
 int spnuv_tcp_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
-        uv_tcp_t *tcp_h;
+        uv_tcp_t *handle;
 
         spn_value_retain(&argv[0]);
         spn_value_retain(&argv[1]);
 
         self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = spn_ptrvalue(&value);
+        value = spn_hashmap_get_strkey(self, "handle");
+        handle = spn_ptrvalue(&value);
 
         value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "readCallback", &argv[1]);
         spn_hashmap_set_strkey(self, "readContext", &value);
         spn_value_release(&value);
 
-        return uv_read_start((uv_stream_t *)tcp_h,
+        return uv_read_start((uv_stream_t *)handle,
                              (uv_alloc_cb)spnuv_tcp_read_alloc_cb,
                              (uv_read_cb)spnuv_tcp_read_cb);
 }
@@ -217,15 +228,20 @@ void spnuv_tcp_write_cb(uv_write_t* req, int status)
 {
         SpnUVWriteData *wrd;
         SpnValue argv[1];
+        int err;
 
         if (req->data) {
-                wrd = (SpnUVWriteData *)req->data;
+                wrd = req->data;
                 if (status != 0) {
-                        argv[0] = spn_makeint(status);
+                        argv[0] = spnuv_get_error(status, uv_err_name(status),
+                                                  uv_strerror(status));
                 } else {
                         argv[0] = spn_nilval;
                 }
-                spn_ctx_callfunc(wrd->ctx, wrd->callback, NULL, 1, argv);
+                err = spn_ctx_callfunc(wrd->ctx, wrd->callback, NULL, 1, argv);
+                if (err) {
+                        fprintf(stderr, "%s\n", spn_ctx_geterrmsg(wrd->ctx));
+                }
                 free(req->data);
         }
 
@@ -236,7 +252,7 @@ int spnuv_tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
-        uv_tcp_t *tcp_h;
+        uv_tcp_t *handle;
         SpnString *str;
         uv_write_t *req;
         uv_buf_t buf;
@@ -254,8 +270,8 @@ int spnuv_tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                 wrd->callback = spn_funcvalue(&argv[2]);
         }
         
-        value = spn_hashmap_get_strkey(self, "tcp_h");
-        tcp_h = spn_ptrvalue(&value);
+        value = spn_hashmap_get_strkey(self, "handle");
+        handle = spn_ptrvalue(&value);
 
         buf.base = str->cstr;
         buf.len = str->len;
@@ -267,7 +283,8 @@ int spnuv_tcp_write(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                 req->data = wrd;
         }
 
-        return uv_write(req, (uv_stream_t *)tcp_h, &buf, 1, spnuv_tcp_write_cb);
+        return uv_write(req, (uv_stream_t *)handle,
+                        &buf, 1, spnuv_tcp_write_cb);
 }
 
 int spnuv_tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
@@ -288,9 +305,12 @@ int spnuv_tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                 { "accept", spnuv_tcp_accept },
                 { "read", spnuv_tcp_read },
                 { "write", spnuv_tcp_write },
+                { "close", spnuv_close }
         };
 
         spn_value_retain(&argv[1]);
+
+        spnuv_tcp_seq += 1;
 
         loop = spn_hashmapvalue(&argv[1]);
         value = spn_hashmap_get_strkey(loop, "uv_loop");
@@ -302,6 +322,10 @@ int spnuv_tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
                 spn_value_release(&fnval);
         }
 
+        value = spn_makeint(spnuv_tcp_seq);
+        spn_hashmap_set_strkey(members, "id", &value);
+        spn_value_release(&value);
+
         value = spn_makerawptr(uv_loop);
         spn_hashmap_set_strkey(members, "uv_loop", &value);
         spn_value_release(&value);
@@ -310,6 +334,7 @@ int spnuv_tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         res.v.o = members;
 
         *ret = res;
+
         return 0;
 }
 
@@ -330,5 +355,3 @@ SpnHashMap *spnuv_tcp_api(void)
 
         return api;
 }
-
-void spnuv_tcp_api_destroy(void) {}
