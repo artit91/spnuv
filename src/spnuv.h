@@ -1,7 +1,7 @@
 #ifndef __spnuv__
 #define __spnuv__
 
-/* TODO: check self + params */
+/* TODO: signal + tcp + stream + util refcount, check self + params */
 
 #define USE_DYNAMIC_LOADING 1
 #define SPNUV_SLAB_SIZE 65536
