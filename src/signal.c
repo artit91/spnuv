@@ -61,7 +61,7 @@ int spnuv_signal_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         static const SpnExtFunc fns[] = {
                 { "start", spnuv_signal_start },
-                { "close", spnuv_close }
+                { "close", spnuv_handle_close }
         };
 
         spn_value_retain(&argv[1]);

@@ -29,13 +29,20 @@ typedef struct SpnUVLoopBuffer {
         int in_use;
 } SpnUVLoopBuffer;
 
+/* stream.c */
 typedef struct SpnUVWriteData {
         void *ctx;
         SpnFunction *callback;
 } SpnUVWriteData;
 
+int spnuv_stream_write(SpnValue *, int, SpnValue [], void *);
+int spnuv_stream_read(SpnValue *, int, SpnValue [], void *);
+
+/* handle.c */
+int spnuv_handle_close(SpnValue *, int, SpnValue [], void *);
+
+/* util.c */
 int spnuv_parse_addr(char *, int, struct sockaddr_storage *);
 SpnValue spnuv_get_error(int, const char *, const char *);
-int spnuv_close(SpnValue *, int, SpnValue [], void *);
 
 #endif

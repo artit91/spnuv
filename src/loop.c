@@ -43,8 +43,7 @@ SpnHashMap *spnuv_loop_new(int is_default)
 
         static const SpnExtFunc fns[] = {
                 { "run", spnuv_loop_run },
-                { "stop", spnuv_loop_stop },
-                { "close", spnuv_close }
+                { "stop", spnuv_loop_stop }
         };
 
         SpnUVLoopBuffer *buffer = malloc(sizeof(SpnUVLoopBuffer));
