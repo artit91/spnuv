@@ -96,6 +96,8 @@ int spnuv_signal_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         *ret = res;
 
+        spn_value_release(&argv[1]);
+
         return uv_signal_init(uv_loop, handle);
 }
 

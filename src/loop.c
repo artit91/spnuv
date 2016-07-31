@@ -14,6 +14,8 @@ int spnuv_loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         value = spn_hashmap_get_strkey(self, "handle");
         handle = spn_ptrvalue(&value);
 
+        spn_value_release(&argv[0]);
+
         return uv_run(handle, UV_RUN_DEFAULT);
 }
 
@@ -28,6 +30,8 @@ int spnuv_loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         self = spn_hashmapvalue(&argv[0]);
         value = spn_hashmap_get_strkey(self, "handle");
         handle = spn_ptrvalue(&value);
+
+        spn_value_release(&argv[0]);
 
         uv_stop(handle);
 
@@ -57,17 +61,14 @@ SpnHashMap *spnuv_loop_new(int is_default)
 
         value = spn_makebool(is_default);
         spn_hashmap_set_strkey(self, "isDefault", &value);
-        spn_value_release(&value);
 
         handle = uv_default_loop();
 
         value = spn_makerawptr(handle);
         spn_hashmap_set_strkey(self, "handle", &value);
-        spn_value_release(&value);
 
         value = spn_makerawptr(buffer);
         spn_hashmap_set_strkey(self, "buffer", &value);
-        spn_value_release(&value);
 
         handle->data = self;
 
