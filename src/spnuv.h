@@ -1,7 +1,7 @@
 #ifndef __spnuv__
 #define __spnuv__
 
-/* TODO: check params */
+/* TODO: remove mallocs(SpnClass), count references, check self, params */
 
 #define USE_DYNAMIC_LOADING 1
 #define SPNUV_SLAB_SIZE 65536

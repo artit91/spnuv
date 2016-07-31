@@ -34,7 +34,6 @@ int spnuv_loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         return  0;
 }
 
-/* TODO: free SpnUVLoopBuffer */
 SpnHashMap *spnuv_loop_new(int is_default)
 {
         SpnHashMap *self = spn_hashmap_new();
@@ -116,5 +115,8 @@ SpnHashMap *spnuv_loop_api(void)
 
 void spnuv_loop_api_destroy(void)
 {
+        SpnValue value = spn_hashmap_get_strkey(default_loop, "buffer");
+        SpnUVLoopBuffer *buffer = spn_ptrvalue(&value);
+        free(buffer);
         spn_object_release(default_loop);
 }
