@@ -1,7 +1,7 @@
 #include "spnuv.h"
 
 void spnuv_stream_read_alloc_cb(uv_handle_t* handle, size_t suggested_size,
-                             uv_buf_t *buf)
+                                uv_buf_t *buf)
 {
         SpnHashMap *loop = handle->loop->data;
         SpnValue value = spn_hashmap_get_strkey(loop, "buffer");
