@@ -313,7 +313,7 @@ int spnuv_tcp_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spnuv_tcp_seq += 1;
 
         loop = spn_hashmapvalue(&argv[1]);
-        value = spn_hashmap_get_strkey(loop, "uv_loop");
+        value = spn_hashmap_get_strkey(loop, "handle");
         uv_loop = spn_ptrvalue(&value);
 
         for (i = 0; i < COUNT(fns); i += 1) {

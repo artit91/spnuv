@@ -6,30 +6,30 @@ int spnuv_loop_run(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
-        uv_loop_t *uv_loop;
+        uv_loop_t *handle;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
+        value = spn_hashmap_get_strkey(self, "handle");
+        handle = spn_ptrvalue(&value);
 
-        return uv_run(uv_loop, UV_RUN_DEFAULT);
+        return uv_run(handle, UV_RUN_DEFAULT);
 }
 
 int spnuv_loop_stop(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 {
         SpnHashMap *self;
         SpnValue value;
-        uv_loop_t *uv_loop;
+        uv_loop_t *handle;
 
         spn_value_retain(&argv[0]);
 
         self = spn_hashmapvalue(&argv[0]);
-        value = spn_hashmap_get_strkey(self, "uv_loop");
-        uv_loop = spn_ptrvalue(&value);
+        value = spn_hashmap_get_strkey(self, "handle");
+        handle = spn_ptrvalue(&value);
 
-        uv_stop(uv_loop);
+        uv_stop(handle);
 
         return  0;
 }
@@ -40,11 +40,12 @@ SpnHashMap *spnuv_loop_new(int is_default)
         SpnHashMap *self = spn_hashmap_new();
         size_t i;
         SpnValue value;
-        uv_loop_t *uv_loop;
+        uv_loop_t *handle;
 
         static const SpnExtFunc fns[] = {
                 { "run", spnuv_loop_run },
-                { "stop", spnuv_loop_stop }
+                { "stop", spnuv_loop_stop },
+                { "close", spnuv_close }
         };
 
         SpnUVLoopBuffer *buffer = malloc(sizeof(SpnUVLoopBuffer));
@@ -60,17 +61,17 @@ SpnHashMap *spnuv_loop_new(int is_default)
         spn_hashmap_set_strkey(self, "isDefault", &value);
         spn_value_release(&value);
 
-        uv_loop = uv_default_loop();
+        handle = uv_default_loop();
 
-        value = spn_makerawptr(uv_loop);
-        spn_hashmap_set_strkey(self, "uv_loop", &value);
+        value = spn_makerawptr(handle);
+        spn_hashmap_set_strkey(self, "handle", &value);
         spn_value_release(&value);
 
         value = spn_makerawptr(buffer);
         spn_hashmap_set_strkey(self, "buffer", &value);
         spn_value_release(&value);
 
-        uv_loop->data = self;
+        handle->data = self;
 
         return self;
 }
