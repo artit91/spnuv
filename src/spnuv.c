@@ -20,7 +20,6 @@ SPN_LIB_OPEN_FUNC(ctx)
 
                 library = spn_hashmap_new();
 
-
                 for (i = 0; i < COUNT(apis); i += 1) {
                         SpnValue value;
                         api = apis[i].fn();
