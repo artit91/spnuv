@@ -88,7 +88,7 @@ int spnuv_stream_read(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         spn_value_release(&value);
 
         return uv_read_start(handle, (uv_alloc_cb)spnuv_stream_read_alloc_cb,
-                             (uv_read_cb)spnuv_stream_read_cb);
+                            (uv_read_cb)spnuv_stream_read_cb);
 }
 
 void spnuv_stream_write_cb(uv_write_t* req, int status)
