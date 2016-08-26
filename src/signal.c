@@ -17,6 +17,9 @@ void spnuv_signal_start_cb(uv_signal_t *handle, int signum) {
         if (err) {
                 fprintf(stderr, "%s\n", spn_ctx_geterrmsg(ctx));
         }
+
+        spn_value_release(&fn_value);
+        spn_object_release(self);
 }
 
 int spnuv_signal_start(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
@@ -39,9 +42,11 @@ int spnuv_signal_start(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
         value = spn_makerawptr(ctx);
         spn_hashmap_set_strkey(self, "signalCallback", &argv[2]);
         spn_hashmap_set_strkey(self, "signalContext", &value);
-        spn_value_release(&value);
 
         handle->data = self;
+
+        spn_value_release(&argv[2]);
+        spn_value_release(&argv[1]);
 
         return uv_signal_start(handle, spnuv_signal_start_cb, signum);
 }
@@ -80,16 +85,13 @@ int spnuv_signal_new(SpnValue *ret, int argc, SpnValue argv[], void *ctx)
 
         value = spn_makeint(spnuv_signal_seq);
         spn_hashmap_set_strkey(members, "id", &value);
-        spn_value_release(&value);
 
         value = spn_makerawptr(uv_loop);
         spn_hashmap_set_strkey(members, "uv_loop", &value);
-        spn_value_release(&value);
 
         handle = malloc(sizeof(uv_signal_t));
         value = spn_makerawptr(handle);
         spn_hashmap_set_strkey(members, "handle", &value);
-        spn_value_release(&value);
 
         res.type = SPN_TYPE_OBJECT;
         res.v.o = members;
