@@ -21,6 +21,7 @@ EXTRA_WARNINGS = -Wno-error=unused-function\
 	-Wno-error=sign-compare\
 	-Wno-error=logical-op-parentheses\
 	-Wimplicit-fallthrough\
+	-Wno-parentheses\
 	-Wno-unused-parameter\
 	-Wno-error-deprecated-declarations\
 	-Wno-error=missing-field-initializers
